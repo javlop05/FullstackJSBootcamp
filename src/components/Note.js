@@ -1,8 +1,7 @@
-const Note = ({ title, body, onClick }) => {
+const Note = ({ content, important, onClick }) => {
     return (
         <li>
-            <p>{title}</p>
-            <button onClick={onClick}></button>
+            {content}<button onClick={onClick}>{`Mark as ${important ? 'not important' : 'important'}`}</button>
         </li>
     );
 }

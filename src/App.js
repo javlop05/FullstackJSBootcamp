@@ -5,7 +5,7 @@ import { getAll, create, update } from './services/notes';
 export default function App() {
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -24,11 +24,10 @@ export default function App() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log('Crear nota');
     const noteToAddToState = {
       id: notes.length + 1,
-      title: newNote,
-      body: newNote
+      content: newNote,
+      important: false
     };
 
     setError('');
@@ -45,14 +44,15 @@ export default function App() {
 
   return (
     <div>
+      <h1>Notes</h1>
       {loading ?
         'Loading notes...' :
         <ol>
           {notes.map(note =>
             <Note
               key={note.id}
-              title={note.title}
-              body={note.body} />
+              content={note.content}
+              important={note.important} />
           )}
         </ol>
       }
