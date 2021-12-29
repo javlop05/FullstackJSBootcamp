@@ -1,4 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react'
+import PropTypes from 'prop-types';
 
 const Toggable = forwardRef(({ children, buttonLabel }, ref) => {
   const [visible, setVisible] = useState(false);
@@ -28,5 +29,12 @@ const Toggable = forwardRef(({ children, buttonLabel }, ref) => {
     </div>
   )
 })
+
+// forwardRef is changing the name of the component
+Toggable.displayName = 'Toggable';
+
+Toggable.propTypes = {
+  buttonLabel: PropTypes.string.isRequired
+}
 
 export default Toggable;

@@ -1,5 +1,6 @@
 import React from 'react';
 import Toggable from './Toggable';
+import PropTypes from 'prop-types';
 
 export default function LoginForm({
   username,
@@ -35,4 +36,9 @@ export default function LoginForm({
       </form>
     </Toggable>
   )
+}
+
+LoginForm.propTypes = {
+  handleSubmit: PropTypes.func.isRequired,
+  username: PropTypes.string
 }
