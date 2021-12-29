@@ -1,14 +1,20 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import Note from './components/Note';
-import { getAll, create, update } from './services/notes';
+import { getAll, create, update, setToken } from './services/notes';
+import loginService from './services/login';
+import LoginForm from './components/LoginForm';
+import NoteForm from './components/NoteForm';
 
 export default function App() {
   const [notes, setNotes] = useState([]);
-  const [newNote, setNewNote] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showAll, setShowAll] = useState(true);
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -20,28 +26,54 @@ export default function App() {
       });
   }, []);
 
-  const handleChange = (event) => {
-    setNewNote(event.target.value);
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedNoteAppUser');
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      setToken(user.token);
+    }
+  }, [])
+
+  const handleLogout = () => {
+    setUser(null);
+    setToken(user.token);
+    window.localStorage.removeItem('loggedNoteAppUser');
+  }
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+
+    try {
+      const user = await loginService.login({
+        username,
+        password
+      });
+      
+      window.localStorage.setItem('loggedNoteAppUser', JSON.stringify(user));
+
+      setToken(user.token);
+      setUser(user);
+      setUsername('');
+      setPassword('');
+    } catch (e) {
+      setError('Wrong credentials');
+      setTimeout(() => {
+        setError(null);
+      }, 3000);
+    }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const noteToAddToState = {
-      id: notes.length + 1,
-      content: newNote,
-      important: false
-    };
-
+  const addNote = (noteObject) => {
     setError('');
-    create(noteToAddToState)
+
+    create(noteObject)
       .then(newNote => {
         setNotes((prevNotes) => [...prevNotes, newNote]);
       })
       .catch((error) => {
         setError(error);
       });
-  
-    setNewNote('');
   };
 
   const updateNote = (id) => {
@@ -66,6 +98,21 @@ export default function App() {
   return (
     <div>
       <h1>Notes</h1>
+
+      {user
+        ? <NoteForm
+            addNote={addNote}
+            handleLogout={handleLogout}
+            />
+        : <LoginForm
+            username={username}
+            password={password}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
+            handleSubmit={(event) => handleLogin(event)}
+            />
+      }
+
       {loading ?
         'Loading notes...' :
         <React.Fragment>
@@ -83,11 +130,6 @@ export default function App() {
           </ol>
         </React.Fragment>
       }
-
-      <form onSubmit={handleSubmit}>
-        <input type='text' onChange={handleChange} value={newNote}/>
-        <button>Add note</button>
-      </form>
 
       {error ? <span style={{color: 'red'}}>{error}</span>: ''}
     </div>
