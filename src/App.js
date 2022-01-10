@@ -131,7 +131,7 @@ export default function App() {
         </React.Fragment>
       }
 
-      {error ? <span style={{color: 'red'}}>{error}</span>: ''}
+      {error ? <span className='error' style={{color: 'red'}}>{error}</span>: ''}
     </div>
   )
 }
